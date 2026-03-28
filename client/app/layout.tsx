@@ -29,9 +29,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable, "font-sans")}
+      className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable)}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground pb-10">
+      <body className={cn("min-h-full flex flex-col bg-background text-foreground pb-10 font-sans", inter.className)}>
         {children}
         <IntelligenceTicker />
       </body>
