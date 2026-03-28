@@ -122,9 +122,27 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .cinematic-bg {
+    background: radial-gradient(circle at top center, #111111 0%, #050505 100%);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 40px -10px oklch(0.553 0.195 38.402 / 0.2);
   }
 }
