@@ -27,9 +27,11 @@ var (
 	ctx         = context.Background()
 	rdb         *redis.Client
 	feedKey     = "wp:feed:latest"
+	tickerKey   = "wp:ticker:latest"
 	retention   = 48 * time.Hour
 	// In-memory fallback
 	memoryCache []byte
+	tickerCache []byte
 )
 
 func initRedis() {
@@ -108,11 +110,21 @@ func gatherIntelligence() {
 
 		if len(allItems) > 0 {
 			data, _ := json.Marshal(allItems)
+			
+			// Generate dynamic ticker items
+			var tickerStrings []string
+			for i := 0; i < len(allItems) && i < 15; i++ {
+				tickerStrings = append(tickerStrings, allItems[i].Source+": "+allItems[i].Title)
+			}
+			tData, _ := json.Marshal(tickerStrings)
+
 			if rdb != nil {
 				rdb.Set(ctx, feedKey, data, retention)
+				rdb.Set(ctx, tickerKey, tData, retention)
 			}
 			memoryCache = data
-			log.Printf("✅ Pipeline synchronized: %d live items ingested.", len(allItems))
+			tickerCache = tData
+			log.Printf("✅ Pipeline synchronized: %d feed items, %d ticker items ingested.", len(allItems), len(tickerStrings))
 		} else {
 			log.Println("⚠️ Pipeline warning: No items retrieved from feeds.")
 		}
@@ -166,14 +178,27 @@ func main() {
 	})
 
 	r.GET("/api/ticker", func(c *gin.Context) {
-		tickerItems := []string{
-			"CRITICAL: Global semiconductor shortage expected to ease by Q4 2026",
-			"TECH: OpenAI Strawberry model achieves 95% on reasoning benchmark",
-			"SPACE: Starship booster recovery successful in Boca Chica",
-			"GEO: New intelligence confirms shift in Arctic trade routes",
-			"ENV: Global fusion breakthrough reported in European facility",
-			"MARKETS: NASDAQ touches all-time high on AI GPU demand",
+		var data []byte
+
+		if rdb != nil {
+			data, _ = rdb.Get(ctx, tickerKey).Bytes()
+		} else {
+			data = tickerCache
 		}
+
+		if len(data) == 0 {
+			// Fallback mock for cold start
+			tickerItems := []string{
+				"CRITICAL: WorldPulse Intelligence Pipeline Initializing...",
+				"SYNC: Establishing connection with global news nodes...",
+				"FEED: BBC, NASA, and Wired status: OK",
+			}
+			c.JSON(http.StatusOK, tickerItems)
+			return
+		}
+
+		var tickerItems []string
+		json.Unmarshal(data, &tickerItems)
 		c.JSON(http.StatusOK, tickerItems)
 	})
 

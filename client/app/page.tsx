@@ -3,6 +3,7 @@ import { NewsItem } from "@/lib/types";
 import { SubscribeDialog } from "@/components/SubscribeDialog";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { LiveClock } from "@/components/LiveClock";
 
 async function getIntelligenceFeed(): Promise<NewsItem[]> {
   try {
@@ -27,7 +28,7 @@ export default async function Home() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
         <div className="container mx-auto flex flex-wrap h-auto min-h-[4rem] items-center justify-between px-4 gap-4">
           <div className="flex flex-col">
-            <div className="font-black text-xl tracking-tighter text-primary leading-none">WorldPulse</div>
+            <h2 className="font-black text-xl tracking-tighter text-primary leading-none">WorldPulse</h2>
             <div className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60 mt-1">Intelligence Core</div>
           </div>
 
@@ -36,22 +37,24 @@ export default async function Home() {
             
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <SubscribeDialog />
+            <div className="hidden sm:block border-l border-border/40 h-8 mr-[-8px]" />
+            <LiveClock />
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto flex flex-col flex-1 py-8 px-4 gap-12">
-        <Separator className="bg-border/30" />
+      <main className="container mx-auto flex flex-col flex-1 py-6 px-3 gap-6">
+        <Separator className="bg-border/20" />
 
         {feed.length === 0 ? (
-          <div className="flex flex-col items-center py-24 text-center gap-4">
-            <p className="text-muted-foreground">The intelligence pipeline is currently offline.</p>
-            <Button variant="outline" size="sm">Reload Connections</Button>
+          <div className="flex flex-col items-center py-24 text-center gap-3">
+            <p className="text-muted-foreground font-medium text-sm">Intelligence pipeline initializing...</p>
+            <Button variant="outline" size="sm" className="h-8 uppercase tracking-widest text-[10px] font-bold">Reload</Button>
           </div>
         ) : (
-          <div className="grid w-full gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+          <div className="grid w-full gap-3 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
             {feed.map((item) => (
               <NewsCard key={item.id} item={item} />
             ))}

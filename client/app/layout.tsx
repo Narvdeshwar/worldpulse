@@ -1,4 +1,4 @@
-import { Inter, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono, Oxanium } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,11 @@ const inter = Inter({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const oxanium = Oxanium({
+  variable: "--font-oxanium",
   subsets: ["latin"],
 });
 
@@ -29,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable)}
+      className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable, oxanium.variable)}
     >
       <body className={cn("min-h-full flex flex-col bg-background text-foreground pb-10 font-sans", inter.className)}>
         {children}
