@@ -19,6 +19,7 @@ const oxanium = Oxanium({
 
 import { IntelligenceTicker } from "@/components/IntelligenceTicker";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/react";
 
 import type { Metadata } from "next";
 
@@ -74,6 +75,7 @@ export default function RootLayout({
           `}
         </Script>
         {children}
+        <Analytics />
         <IntelligenceTicker />
       </body>
     </html>
