@@ -63,6 +63,8 @@ func sendWelcomeEmail(email string) {
 
 func gatherIntelligence() {
 	fp := gofeed.NewParser()
+	fp.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 WorldPulse/1.1"
+
 	feeds := []string{
 		"http://feeds.bbci.co.uk/news/world/rss.xml",
 		"https://www.nasa.gov/news-release/feed/",
@@ -70,10 +72,13 @@ func gatherIntelligence() {
 		"https://techcrunch.com/category/artificial-intelligence/feed/",
 		"https://venturebeat.com/category/ai/feed/",
 		"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
+		"https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
+		"https://www.aljazeera.com/xml/rss/all.xml",
+		"https://www.theguardian.com/world/rss",
 	}
 
 	for {
-		log.Println("🌍 Synchronizing with global intelligence feeds...")
+		log.Println("🌍 SYNCHRONIZING: Refreshing Global Tactical Grid...")
 		
 		type NewsWithTime struct {
 			Item NewsItem
@@ -82,13 +87,14 @@ func gatherIntelligence() {
 		var itemsWithTime []NewsWithTime
 
 		for _, url := range feeds {
+			log.Printf("📡 NODE-CHECK: Attempting sync with %s...", url)
 			feed, err := fp.ParseURL(url)
 			if err != nil {
-				log.Printf("⚠️ Failed to parse feed %s: %v", url, err)
+				log.Printf("⚠️ NODE-FAIL: %s | Error: %v", url, err)
 				continue
 			}
 
-			// Extract source name with specialization logic
+			// Extract source name with specialization
 			sourceName := feed.Title
 			lowerURL := strings.ToLower(url)
 			if strings.Contains(lowerURL, "techcrunch") {
@@ -97,10 +103,18 @@ func gatherIntelligence() {
 				sourceName = "VentureBeat AI"
 			} else if strings.Contains(lowerURL, "theverge") {
 				sourceName = "The Verge AI"
+			} else if strings.Contains(lowerURL, "zdnet") {
+				sourceName = "ZDNet AI"
+			} else if strings.Contains(lowerURL, "aljazeera") {
+				sourceName = "Al Jazeera"
+			} else if strings.Contains(lowerURL, "theguardian") {
+				sourceName = "The Guardian"
 			}
+			
+			log.Printf("✅ NODE-READY: Ingested %d items from %s", len(feed.Items), sourceName)
 
-			// Record top 8 items from each node for density
-			limit := 8
+			// Increase density to top 10 items for high-status global nodes
+			limit := 10
 			if len(feed.Items) < limit {
 				limit = len(feed.Items)
 			}
@@ -195,6 +209,31 @@ func gatherIntelligence() {
 	}
 }
 
+func runTacticalBriefing() {
+	ticker := time.NewTicker(1 * time.Minute)
+	log.Println("🕒 Intelligence Scheduler Node: Operational [06:00 / 18:00 Target]")
+	
+	for range ticker.C {
+		now := time.Now()
+		// Check target tactical windows
+		if (now.Hour() == 6 && now.Minute() == 0) || (now.Hour() == 18 && now.Minute() == 0) {
+			log.Printf("📡 CRITICAL: Executing Global Intelligence Briefing [Time: %s]", now.Format("15:04"))
+			
+			if rdb != nil {
+				subscribers, err := rdb.SMembers(ctx, "wp:subscribers").Result()
+				if err == nil && len(subscribers) > 0 {
+					for _, email := range subscribers {
+						log.Printf("📧 Sending Tactical Packet to Operative: %s", email)
+						// sendWelcomeEmail mock handles the logging for now
+						sendWelcomeEmail(email)
+					}
+					log.Printf("✅ Success: Dispatched %d intelligence briefings.", len(subscribers))
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using defaults")
@@ -202,6 +241,9 @@ func main() {
 
 	initRedis()
 	go gatherIntelligence()
+
+	// Initialize Scheduler Node
+	go runTacticalBriefing()
 
 	r := gin.Default()
 

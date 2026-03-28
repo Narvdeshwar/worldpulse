@@ -49,14 +49,14 @@ export function SubscribeDialog() {
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">Intelligence Newsletter</DialogTitle>
           <DialogDescription className="text-sm">
-            Receive high-signal global intelligence reports directly in your inbox twice a day.
+            Receive high-signal global intelligence reports at exactly 06:00 and 18:00 daily.
           </DialogDescription>
         </DialogHeader>
         
         {status === "success" ? (
           <div className="py-6 text-center space-y-2 animate-in fade-in zoom-in duration-300">
-            <div className="text-primary font-bold text-lg">You're in.</div>
-            <p className="text-muted-foreground text-sm">Welcome to the briefing. The first report arrives in 12 hours.</p>
+            <div className="text-primary font-bold text-lg">Signal Established.</div>
+            <p className="text-muted-foreground text-sm">Welcome to the briefing. Your first report arrives at the next 06:00/18:00 tactical window.</p>
           </div>
         ) : (
           <form onSubmit={handleSubscribe} className="space-y-4 py-4">
