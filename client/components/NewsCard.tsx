@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface NewsCardProps {
   item: NewsItem;
@@ -29,40 +30,40 @@ export function NewsCard({ item, className }: NewsCardProps) {
   };
 
   return (
-    <Card className={cn("transition-all duration-200 hover:border-primary/30", className)}>
+    <Card className={className}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-4">
-        <div className="space-y-1.5">
-          <CardTitle className="text-xl leading-snug">
+        <div className="space-y-1">
+          <CardTitle className="text-xl">
             {item.title}
           </CardTitle>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-            <Clock className="h-3 w-3" />
-            <span>{item.timestamp}</span>
-            <span className="h-1 w-1 rounded-full bg-muted" />
-            <span>{item.source}</span>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-[10px] uppercase px-2 py-0 h-4">
+              {item.source}
+            </Badge>
+            <span className="text-xs text-muted-foreground">{item.timestamp}</span>
           </div>
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className={cn("h-8 w-8 shrink-0", copied && "text-green-500 border-green-500/50")}
+          className={cn("h-8 w-8 shrink-0", copied && "text-green-500")}
           onClick={copyToClipboard}
         >
           {copied ? (
-            <span className="text-[10px] font-bold uppercase">OK</span>
+            <span className="text-[10px] font-bold">OK</span>
           ) : (
-            <Copy className="h-3.5 w-3.5" />
+            <Copy className="h-4 w-4" />
           )}
         </Button>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <CardDescription className="text-sm">
           {item.summary}
-        </p>
+        </CardDescription>
       </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5">
-          <span>Explore Source</span>
+      <CardFooter className="flex justify-end border-t pt-4">
+        <Button variant="link" size="sm" className="h-auto p-0 text-muted-foreground gap-1.5">
+          <span>Read more</span>
           <ExternalLink className="h-3 w-3" />
         </Button>
       </CardFooter>

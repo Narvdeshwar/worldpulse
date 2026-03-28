@@ -2,10 +2,11 @@ import { Metadata } from "next";
 import { NewsCard } from "@/components/NewsCard";
 import { NewsItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
-  title: "WorldPulse | Global Intelligence Feed",
-  description: "Real-time updates from the world of tech, geopolitics, and AI.",
+  title: "WorldPulse",
+  description: "Global Intelligence Feed.",
 };
 
 const mockFeed: NewsItem[] = [
@@ -35,46 +36,40 @@ const mockFeed: NewsItem[] = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Standard Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="flex items-center gap-2 font-bold tracking-tight">
-            <div className="h-3 w-3 rounded-full bg-primary" />
-            <span>WorldPulse</span>
+      <header className="border-b">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="font-bold text-xl tracking-tight">WorldPulse</div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm">Archives</Button>
+            <Button size="sm">Subscribe</Button>
           </div>
-          <Button variant="outline" size="sm" className="text-xs uppercase tracking-widest font-bold">
-            Subscribe
-          </Button>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="container mx-auto flex flex-col items-center flex-1 py-12 px-4 gap-12">
-        <div className="flex flex-col items-center text-center gap-2 max-w-2xl">
-          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground leading-none">Intelligence Feed</p>
-          <h1 className="text-4xl font-extrabold tracking-tight">Global High-Signal Events</h1>
-          <p className="text-muted-foreground text-sm max-w-sm mt-2">
-            Automated intelligence gathered from across the tech and geopolitical landscape.
-          </p>
+      <main className="container mx-auto flex flex-col flex-1 py-8 px-4 gap-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">World Intel</h1>
+          <p className="text-muted-foreground">The latest high-signal updates from the world pulse.</p>
         </div>
+        
+        <Separator />
 
-        <div className="grid w-full max-w-3xl gap-6">
+        <div className="grid gap-6 max-w-4xl">
           {mockFeed.map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
         </div>
-
-        <footer className="py-12 border-t w-full max-w-3xl flex flex-col items-center gap-2 text-center">
-          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-            Aggregated every 6 hours
-          </p>
-          <div className="flex gap-4 text-[10px] text-muted-foreground font-medium">
-            <span>Privacy</span>
-            <span>Terms</span>
-            <span>Contact</span>
-          </div>
-        </footer>
       </main>
+
+      <footer className="border-t py-6">
+        <div className="container mx-auto px-4 flex justify-between items-center text-sm text-muted-foreground">
+          <p>© 2024 WorldPulse</p>
+          <div className="flex gap-4">
+            <span className="hover:underline cursor-pointer">Help</span>
+            <span className="hover:underline cursor-pointer">Privacy</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
