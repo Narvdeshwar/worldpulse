@@ -57,7 +57,8 @@ const mockFeed: NewsItem[] = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="border-b">
+      {/* Standard Sticky Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="font-bold text-xl tracking-tight">WorldPulse</div>
           <div className="flex items-center gap-4">
