@@ -23,25 +23,29 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="font-bold text-xl tracking-tight">WorldPulse</div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">Archives</Button>
-            <Button size="sm">Subscribe</Button>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
+        <div className="container mx-auto flex flex-wrap h-auto min-h-[4rem] items-center justify-between px-4 gap-4">
+          <div className="flex flex-col">
+            <div className="font-black text-xl tracking-tighter text-primary leading-none">WorldPulse</div>
+            <div className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60 mt-1">Intelligence Core</div>
+          </div>
+
+          <div className="hidden md:flex flex-col items-center flex-1">
+            <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-foreground/90">World Intelligence Feed</h1>
+            <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
+              High-signal global updates aggregated every 2 hours.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-border/40 uppercase tracking-wider">Archives</Button>
+            <Button size="sm" className="h-8 text-[10px] font-bold uppercase tracking-wider">Subscribe</Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto flex flex-col flex-1 py-12 px-4 gap-8">
-        <div className="flex flex-col gap-1 max-w-2xl px-2">
-          <h1 className="text-3xl font-bold tracking-tight">World Intelligence Feed</h1>
-          <p className="text-muted-foreground text-sm">
-            High-signal global updates aggregated every 2 hours.
-          </p>
-        </div>
-        
-        <Separator className="bg-border/50" />
+      <main className="container mx-auto flex flex-col flex-1 py-8 px-4 gap-12">
+        <Separator className="bg-border/30" />
 
         {feed.length === 0 ? (
           <div className="flex flex-col items-center py-24 text-center gap-4">
