@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 type NewsItem struct {
@@ -17,26 +21,29 @@ type NewsItem struct {
 	Timestamp string `json:"timestamp"`
 }
 
-func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using defaults")
+var (
+	ctx         = context.Background()
+	rdb         *redis.Client
+	feedKey     = "wp:feed:latest"
+	retention   = 48 * time.Hour
+)
+
+func initRedis() {
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		redisURL = "localhost:6379"
 	}
-
-	// Set up Gin
-	r := gin.Default()
-
-	// CORS middleware
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		c.Next()
+	rdb = redis.NewClient(&redis.Options{
+		Addr: redisURL,
 	})
+	log.Printf("Connecting to Redis at %s", redisURL)
+}
 
-	// API Endpoint for the intelligence feed
-	r.GET("/api/feed", func(c *gin.Context) {
-		// Mock data for now
+// simulateIntelligenceGathering periodically updates the feed in Redis
+func simulateIntelligenceGathering() {
+	for {
+		log.Println("🌍 Gathering intelligence from global sources...")
+		
 		mockFeed := []NewsItem{
 			{
 				ID:        "1",
@@ -52,16 +59,60 @@ func main() {
 				Source:    "Bloomberg",
 				Timestamp: "5h ago",
 			},
+			{
+				ID:        "3",
+				Title:     "SpaceX Starship Completes Fifth Test Flight",
+				Summary:   "The flight demonstrated successful stage separation and a controlled landing of the Super Heavy booster back at the launch site, a critical milestone for full reuse.",
+				Source:    "SpaceNews",
+				Timestamp: "12h ago",
+			},
 		}
-		c.JSON(http.StatusOK, mockFeed)
+
+		data, _ := json.Marshal(mockFeed)
+		err := rdb.Set(ctx, feedKey, data, retention).Err()
+		if err != nil {
+			log.Printf("Error saving to Redis: %v", err)
+		}
+
+		time.Sleep(6 * time.Hour) // Gather every 6 hours
+	}
+}
+
+func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using defaults")
+	}
+
+	initRedis()
+	go simulateIntelligenceGathering()
+
+	r := gin.Default()
+
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		c.Next()
 	})
 
-	// Server port
+	r.GET("/api/feed", func(c *gin.Context) {
+		val, err := rdb.Get(ctx, feedKey).Result()
+		if err != nil {
+			log.Printf("Redis miss: %v", err)
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Intelligence pipeline initializing"})
+			return
+		}
+
+		var feed []NewsItem
+		json.Unmarshal([]byte(val), &feed)
+		c.JSON(http.StatusOK, feed)
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	log.Printf("WorldPulse Intelligence Server starting on port %s", port)
+	log.Printf("WorldPulse Intelligence Server live on port %s", port)
 	r.Run(":" + port)
 }
