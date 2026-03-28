@@ -5,7 +5,7 @@ import { Users } from "lucide-react";
 
 export function LiveOperatives() {
   const [count, setCount] = useState(1);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://worldpulse-api.onrender.com";
 
   useEffect(() => {
     const syncOperatives = async () => {

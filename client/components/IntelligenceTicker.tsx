@@ -10,7 +10,7 @@ export function IntelligenceTicker() {
   useEffect(() => {
     async function fetchTicker() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://worldpulse-api.onrender.com";
         const res = await fetch(`${apiUrl}/api/ticker`);
         if (!res.ok) throw new Error();
         const data = await res.json();
