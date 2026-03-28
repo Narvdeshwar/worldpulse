@@ -12,7 +12,7 @@ export function ShimmerCard() {
         </div>
         <Skeleton className="h-8 w-8 rounded-md bg-white/5" />
       </div>
-      
+
       <div className="space-y-3">
         <Skeleton className="h-6 w-full bg-white/10" />
         <Skeleton className="h-6 w-[70%] bg-white/10" />
