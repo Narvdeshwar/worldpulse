@@ -4,6 +4,15 @@ import { NewsItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Copy, Clock, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface NewsCardProps {
   item: NewsItem;
@@ -20,53 +29,43 @@ export function NewsCard({ item, className }: NewsCardProps) {
   };
 
   return (
-    <div
-      className={cn(
-        "glass-effect p-6 rounded-2xl flex flex-col gap-3 transition-all duration-300 hover:scale-[1.01] hover:glow-primary group",
-        className
-      )}
-    >
-      <div className="flex justify-between items-start gap-4">
-        <h3 className="text-xl font-bold text-white leading-tight tracking-tight">
-          {item.title}
-        </h3>
-        <button
-          onClick={copyToClipboard}
-          className={cn(
-            "p-2 rounded-lg transition-colors",
-            copied ? "bg-green-500/20 text-green-400" : "bg-white/5 text-zinc-400 hover:text-white"
-          )}
-          title="Copy intelligence"
-        >
-          {copied ? (
-            <span className="text-xs font-medium px-1">Copied!</span>
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-
-      <p className="text-zinc-300 text-sm leading-relaxed font-light">
-        {item.summary}
-      </p>
-
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest font-bold text-zinc-500">
-          <div className="flex items-center gap-1.5">
+    <Card className={cn("transition-all duration-200 hover:border-primary/30", className)}>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 gap-4">
+        <div className="space-y-1.5">
+          <CardTitle className="text-xl leading-snug">
+            {item.title}
+          </CardTitle>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider font-semibold">
             <Clock className="h-3 w-3" />
             <span>{item.timestamp}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-1 w-1 rounded-full bg-zinc-700" />
+            <span className="h-1 w-1 rounded-full bg-muted" />
             <span>{item.source}</span>
           </div>
         </div>
-        
-        <button className="text-[10px] uppercase font-bold text-zinc-400 hover:text-white transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100">
+        <Button
+          variant="outline"
+          size="icon"
+          className={cn("h-8 w-8 shrink-0", copied && "text-green-500 border-green-500/50")}
+          onClick={copyToClipboard}
+        >
+          {copied ? (
+            <span className="text-[10px] font-bold uppercase">OK</span>
+          ) : (
+            <Copy className="h-3.5 w-3.5" />
+          )}
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {item.summary}
+        </p>
+      </CardContent>
+      <CardFooter className="flex justify-end">
+        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5">
           <span>Explore Source</span>
-          <ExternalLink className="h-2.5 w-2.5" />
-        </button>
-      </div>
-    </div>
+          <ExternalLink className="h-3 w-3" />
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

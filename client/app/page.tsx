@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { NewsCard } from "@/components/NewsCard";
 import { NewsItem } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "WorldPulse | Global Intelligence Feed",
@@ -33,47 +34,47 @@ const mockFeed: NewsItem[] = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center flex-1 w-full relative">
-      {/* Cinematic Header */}
-      <header className="sticky top-0 z-50 w-full flex justify-center py-6 px-4 bg-black/10 backdrop-blur-sm border-b border-white/5 transition-all">
-        <div className="flex w-full max-w-4xl justify-between items-center">
-          <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="h-4 w-4 rounded-full bg-primary/80 transition-all group-hover:glow-primary" />
-            <span className="text-sm font-bold tracking-widest uppercase text-white/90">WorldPulse</span>
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Standard Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-2 font-bold tracking-tight">
+            <div className="h-3 w-3 rounded-full bg-primary" />
+            <span>WorldPulse</span>
           </div>
-          
-          <button className="text-[10px] tracking-widest uppercase font-bold text-zinc-400 hover:text-white border border-white/10 px-4 py-2 rounded-full transition-all hover:bg-white/5">
-            Subscribe to Newsletter
-          </button>
+          <Button variant="outline" size="sm" className="text-xs uppercase tracking-widest font-bold">
+            Subscribe
+          </Button>
         </div>
       </header>
 
-      {/* Main Feed */}
-      <main className="flex flex-col w-full max-w-2xl px-4 py-24 gap-12 relative z-10">
-        {/* Status Section */}
-        <section className="flex flex-col gap-1 items-center mb-4 text-center">
-          <p className="text-[10px] tracking-[0.2em] font-bold text-zinc-500 uppercase leading-none">Intelligence Feed</p>
-          <h1 className="text-4xl font-extrabold text-white/90 leading-tight">Latest High-Signal Events</h1>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-primary/40 to-transparent mt-4" />
-        </section>
+      {/* Main Container */}
+      <main className="container mx-auto flex flex-col items-center flex-1 py-12 px-4 gap-12">
+        <div className="flex flex-col items-center text-center gap-2 max-w-2xl">
+          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground leading-none">Intelligence Feed</p>
+          <h1 className="text-4xl font-extrabold tracking-tight">Global High-Signal Events</h1>
+          <p className="text-muted-foreground text-sm max-w-sm mt-2">
+            Automated intelligence gathered from across the tech and geopolitical landscape.
+          </p>
+        </div>
 
-        {/* News Items */}
-        <div className="flex flex-col gap-6">
+        <div className="grid w-full max-w-3xl gap-6">
           {mockFeed.map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
         </div>
 
-        {/* Footer info */}
-        <footer className="mt-12 text-center">
-          <p className="text-xs text-zinc-600 font-medium">Auto-aggregated & Summarized every 6 hours</p>
-          <p className="text-[10px] uppercase text-zinc-700 tracking-widest mt-2">Zero Search. Real Intelligence.</p>
+        <footer className="py-12 border-t w-full max-w-3xl flex flex-col items-center gap-2 text-center">
+          <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+            Aggregated every 6 hours
+          </p>
+          <div className="flex gap-4 text-[10px] text-muted-foreground font-medium">
+            <span>Privacy</span>
+            <span>Terms</span>
+            <span>Contact</span>
+          </div>
         </footer>
       </main>
-
-      {/* Cinematic Decorative Elements */}
-      <div className="fixed bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none z-0" />
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[60vh] bg-primary/5 rounded-[100%] blur-[120px] pointer-events-none z-0" />
     </div>
   );
 }
