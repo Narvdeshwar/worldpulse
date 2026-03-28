@@ -3,7 +3,7 @@
 import { NewsItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Copy, Clock, ExternalLink, Globe } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -21,26 +21,46 @@ interface NewsCardProps {
 
 export function NewsCard({ item, className }: NewsCardProps) {
   const [copied, setCopied] = useState(false);
+  const [localTime, setLocalTime] = useState(item.timestamp);
+
+  useEffect(() => {
+    try {
+      const date = new Date(item.timestamp);
+      if (!isNaN(date.getTime())) {
+        const formatted = new Intl.DateTimeFormat(undefined, {
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }).format(date);
+        setLocalTime(formatted);
+      }
+    } catch (e) {
+      // Keep original if parsing fails
+    }
+  }, [item.timestamp]);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${item.title}\n\n${item.summary}\n\nSource: ${item.source} (${item.timestamp})`);
+    navigator.clipboard.writeText(`${item.title}\n\n${item.summary}\n\nSource: ${item.source} (${localTime})`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <Card className={cn(
-      "flex flex-col h-full transition-all duration-200",
-      "border border-border/40 bg-card hover:border-primary/30 hover:bg-muted/5",
+      "flex flex-col h-full transition-all duration-300",
+      "border border-border/40 bg-card rounded-xl backdrop-blur-md",
+      "hover:border-primary/50 hover:bg-card/90 hover:scale-[1.01] hover:shadow-2xl hover:shadow-primary/5",
       className
     )}>
-      <CardHeader className="space-y-4 pb-4">
+      <CardHeader className="space-y-3 p-3 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Globe className="h-3.5 w-3.5 text-primary/70" />
+            <Globe className="h-3.5 w-3.5 text-primary" />
             <Badge 
               variant="outline" 
-              className="text-[10px] font-semibold tracking-tight uppercase border-none p-0 text-muted-foreground"
+              className="text-[9px] font-black tracking-[0.1em] uppercase border-none p-0 text-muted-foreground"
             >
               {item.source}
             </Badge>
@@ -60,26 +80,26 @@ export function NewsCard({ item, className }: NewsCardProps) {
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="flex-1 pb-6">
-        <p className="text-sm leading-relaxed text-muted-foreground font-medium line-clamp-3 italic decoration-primary/10">
+      <CardContent className="flex-1 px-3 py-2">
+        <p className="text-[13px] leading-relaxed text-muted-foreground/80 font-medium line-clamp-4 italic decoration-primary/20">
           "{item.summary}"
         </p>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-4 pt-4 mt-auto border-t border-border/30">
+      <CardFooter className="flex flex-col gap-3 p-3 mt-auto border-t border-border/20">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-semibold">
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">
             <Clock className="h-3 w-3" />
-            <span>{item.timestamp}</span>
+            <span>{localTime}</span>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-8 px-3 text-[11px] font-bold uppercase tracking-wider gap-1.5 transition-all border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary"
+            className="h-8 px-3 text-[10px] font-black uppercase tracking-[0.15em] transition-all bg-primary/5 border-primary/20 hover:bg-primary hover:text-white hover:border-primary"
             onClick={() => window.open(item.url, "_blank")}
           >
-            <span>Read Full Intelligence</span>
-            <ExternalLink className="h-3 w-3" />
+            <span>Read Report</span>
+            <ExternalLink className="h-2.5 w-2.5" />
           </Button>
         </div>
       </CardFooter>

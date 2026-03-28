@@ -23,7 +23,7 @@ export function SubscribeDialog() {
 
     setStatus("loading");
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081";
       const res = await fetch(`${apiUrl}/api/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

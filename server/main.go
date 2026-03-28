@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -64,11 +67,17 @@ func gatherIntelligence() {
 		"http://feeds.bbci.co.uk/news/world/rss.xml",
 		"https://www.nasa.gov/news-release/feed/",
 		"https://www.wired.com/feed/rss",
+		"https://techcrunch.com/category/artificial-intelligence/feed/",
 	}
 
 	for {
 		log.Println("🌍 Synchronizing with global intelligence feeds...")
-		var allItems []NewsItem
+		
+		type NewsWithTime struct {
+			Item NewsItem
+			Date time.Time
+		}
+		var itemsWithTime []NewsWithTime
 
 		for _, url := range feeds {
 			feed, err := fp.ParseURL(url)
@@ -77,8 +86,14 @@ func gatherIntelligence() {
 				continue
 			}
 
-			// Capture top 5 items from each feed
-			limit := 5
+			// Extract source name (e.g. "TechCrunch AI")
+			sourceName := feed.Title
+			if strings.Contains(strings.ToLower(url), "techcrunch") {
+				sourceName = "TechCrunch AI"
+			}
+
+			// Record top 8 items from each node for density
+			limit := 8
 			if len(feed.Items) < limit {
 				limit = len(feed.Items)
 			}
@@ -86,36 +101,48 @@ func gatherIntelligence() {
 			for i := 0; i < limit; i++ {
 				item := feed.Items[i]
 				
-				// Clean up timestamp
-				ts := "Recent"
+				// Parse date for ranking logic
+				publishedAt := time.Now()
 				if item.Published != "" {
-					ts = item.Published
-					if t, err := time.Parse(time.RFC1123Z, ts); err == nil {
-						ts = t.Format("Jan 02, 15:04")
-					} else if t, err := time.Parse(time.RFC1123, ts); err == nil {
-						ts = t.Format("Jan 02, 15:04")
+					if t, err := time.Parse(time.RFC1123Z, item.Published); err == nil {
+						publishedAt = t
+					} else if t, err := time.Parse(time.RFC1123, item.Published); err == nil {
+						publishedAt = t
+					} else if t, err := time.Parse(time.RFC3339, item.Published); err == nil {
+						publishedAt = t
 					}
 				}
 
-				allItems = append(allItems, NewsItem{
-					ID:        item.GUID,
-					Title:     item.Title,
-					Summary:   item.Description,
-					Source:    feed.Title,
-					Timestamp: ts,
-					URL:       item.Link,
+				itemsWithTime = append(itemsWithTime, NewsWithTime{
+					Item: NewsItem{
+						ID:        item.GUID,
+						Title:     item.Title,
+						Summary:   item.Description,
+						Source:    sourceName,
+						Timestamp: item.Published,
+						URL:       item.Link,
+					},
+					Date: publishedAt,
 				})
+			}
+		}
+
+		// 🕒 GLOBAL CHRONOLOGICAL SORT: Newest Intelligence First
+		sort.Slice(itemsWithTime, func(i, j int) bool {
+			return itemsWithTime[i].Date.After(itemsWithTime[j].Date)
+		})
+
+		var allItems []NewsItem
+		var tickerStrings []string
+		for _, it := range itemsWithTime {
+			allItems = append(allItems, it.Item)
+			if len(tickerStrings) < 15 {
+				tickerStrings = append(tickerStrings, fmt.Sprintf("[%s] %s", it.Item.Source, it.Item.Title))
 			}
 		}
 
 		if len(allItems) > 0 {
 			data, _ := json.Marshal(allItems)
-			
-			// Generate dynamic ticker items
-			var tickerStrings []string
-			for i := 0; i < len(allItems) && i < 15; i++ {
-				tickerStrings = append(tickerStrings, allItems[i].Source+": "+allItems[i].Title)
-			}
 			tData, _ := json.Marshal(tickerStrings)
 
 			if rdb != nil {
@@ -124,7 +151,7 @@ func gatherIntelligence() {
 			}
 			memoryCache = data
 			tickerCache = tData
-			log.Printf("✅ Pipeline synchronized: %d feed items, %d ticker items ingested.", len(allItems), len(tickerStrings))
+			log.Printf("✅ Pipeline synchronized: %d feed items, %d ticker items [Chronology Active]", len(allItems), len(tickerStrings))
 		} else {
 			log.Println("⚠️ Pipeline warning: No items retrieved from feeds.")
 		}
@@ -152,8 +179,13 @@ func main() {
 
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
 		c.Next()
 	})
 
