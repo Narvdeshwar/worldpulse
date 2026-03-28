@@ -101,15 +101,22 @@ func gatherIntelligence() {
 			for i := 0; i < limit; i++ {
 				item := feed.Items[i]
 				
-				// Parse date for ranking logic
+				// 🕒 MULTI-FORMAT DATE DETECTION
 				publishedAt := time.Now()
 				if item.Published != "" {
-					if t, err := time.Parse(time.RFC1123Z, item.Published); err == nil {
-						publishedAt = t
-					} else if t, err := time.Parse(time.RFC1123, item.Published); err == nil {
-						publishedAt = t
-					} else if t, err := time.Parse(time.RFC3339, item.Published); err == nil {
-						publishedAt = t
+					layouts := []string{
+						time.RFC1123Z,
+						time.RFC1123,
+						time.RFC3339,
+						"Mon, 02 Jan 2006 15:04:05 MST", // Standard RSS 2.0
+						"02 Jan 2006 15:04:05 MST",      // No Day-of-week
+						"Mon, 2 Jan 2006 15:04:05 MST",   // Day without prefix zero
+					}
+					for _, layout := range layouts {
+						if t, err := time.Parse(layout, item.Published); err == nil {
+							publishedAt = t
+							break
+						}
 					}
 				}
 
@@ -119,7 +126,7 @@ func gatherIntelligence() {
 						Title:     item.Title,
 						Summary:   item.Description,
 						Source:    sourceName,
-						Timestamp: item.Published,
+						Timestamp: item.Published, // Raw for client IST formatting
 						URL:       item.Link,
 					},
 					Date: publishedAt,
