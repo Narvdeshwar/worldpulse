@@ -68,6 +68,8 @@ func gatherIntelligence() {
 		"https://www.nasa.gov/news-release/feed/",
 		"https://www.wired.com/feed/rss",
 		"https://techcrunch.com/category/artificial-intelligence/feed/",
+		"https://venturebeat.com/category/ai/feed/",
+		"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
 	}
 
 	for {
@@ -86,10 +88,15 @@ func gatherIntelligence() {
 				continue
 			}
 
-			// Extract source name (e.g. "TechCrunch AI")
+			// Extract source name with specialization logic
 			sourceName := feed.Title
-			if strings.Contains(strings.ToLower(url), "techcrunch") {
+			lowerURL := strings.ToLower(url)
+			if strings.Contains(lowerURL, "techcrunch") {
 				sourceName = "TechCrunch AI"
+			} else if strings.Contains(lowerURL, "venturebeat") {
+				sourceName = "VentureBeat AI"
+			} else if strings.Contains(lowerURL, "theverge") {
+				sourceName = "The Verge AI"
 			}
 
 			// Record top 8 items from each node for density
@@ -101,22 +108,36 @@ func gatherIntelligence() {
 			for i := 0; i < limit; i++ {
 				item := feed.Items[i]
 				
-				// 🕒 MULTI-FORMAT DATE DETECTION
+				// 🕒 MULTI-FORMAT INTELLIGENCE RANKING
 				publishedAt := time.Now()
 				if item.Published != "" {
 					layouts := []string{
 						time.RFC1123Z,
 						time.RFC1123,
 						time.RFC3339,
-						"Mon, 02 Jan 2006 15:04:05 MST", // Standard RSS 2.0
-						"02 Jan 2006 15:04:05 MST",      // No Day-of-week
-						"Mon, 2 Jan 2006 15:04:05 MST",   // Day without prefix zero
+						time.RFC822,
+						time.RFC822Z,
+						time.RFC850,
+						time.ANSIC,
+						"Mon, 02 Jan 2006 15:04:05 MST",
+						"Mon, 02 Jan 2006 15:04:05 -0700",
+						"02 Jan 2006 15:04:05 MST",
+						"02 Jan 2006 15:04:05 -0700",
+						"Mon, 2 Jan 2006 15:04:05 MST", 
+						"Mon, 2 Jan 2006 15:04:05 -0700",
+						"2006-01-02 15:04:05",
+						"January 02, 2006 15:04:05",
 					}
+					success := false
 					for _, layout := range layouts {
 						if t, err := time.Parse(layout, item.Published); err == nil {
 							publishedAt = t
+							success = true
 							break
 						}
+					}
+					if !success {
+						log.Printf("⚠️ Date Parse Failed for Node %s: %s", sourceName, item.Published)
 					}
 				}
 
@@ -126,7 +147,7 @@ func gatherIntelligence() {
 						Title:     item.Title,
 						Summary:   item.Description,
 						Source:    sourceName,
-						Timestamp: item.Published, // Raw for client IST formatting
+						Timestamp: item.Published, // Raw for client IST localizer
 						URL:       item.Link,
 					},
 					Date: publishedAt,
@@ -186,13 +207,15 @@ func main() {
 
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
+			c.AbortWithStatus(http.StatusOK)
 			return
 		}
+
 		c.Next()
 	})
 
@@ -258,6 +281,26 @@ func main() {
 		
 		log.Printf("📩 New Subscriber Synchronized: %s", body.Email)
 		c.JSON(http.StatusOK, gin.H{"message": "Subscribed! Initial report coming in 12 hours."})
+	})
+
+	// 💓 Live Heartbeat Node (Real Tracking)
+	r.POST("/api/heartbeat", func(c *gin.Context) {
+		clientIP := c.ClientIP()
+		if rdb != nil {
+			rdb.SAdd(ctx, "wp:active_users", clientIP)
+			rdb.Expire(ctx, "wp:active_users", 60*time.Second) 
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "recorded"})
+	})
+
+	// 📊 Real Actual Count Node
+	r.GET("/api/operatives", func(c *gin.Context) {
+		count := int64(1) // Include yourself
+		if rdb != nil {
+			val, _ := rdb.SCard(ctx, "wp:active_users").Result()
+			if val > 0 { count = val }
+		}
+		c.JSON(http.StatusOK, gin.H{"count": count})
 	})
 
 	port := os.Getenv("PORT")

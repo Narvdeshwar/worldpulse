@@ -18,6 +18,7 @@ const oxanium = Oxanium({
 });
 
 import { IntelligenceTicker } from "@/components/IntelligenceTicker";
+import Script from "next/script";
 
 import type { Metadata } from "next";
 
@@ -37,6 +38,19 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable, oxanium.variable)}
     >
       <body className={cn("min-h-full flex flex-col bg-background text-foreground pb-10 font-sans", inter.className)}>
+        {/* Global Intelligence Pixel (gtag) */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=G-WORLD-PULSE`}
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-WORLD-PULSE');
+          `}
+        </Script>
         {children}
         <IntelligenceTicker />
       </body>

@@ -23,13 +23,20 @@ export function FilteredIntelligence({ initialFeed }: FilteredIntelligenceProps)
     [initialFeed]
   );
 
-  // Perform actual filtering in the browser
+  // Absolute client-side chronological sort (Final Safeguard)
   const filteredFeed = useMemo(() => {
-    if (currentCategory === "all") return initialFeed;
-    return initialFeed.filter(item => {
-      // Robust slug matching (e.g. "NASA News-Release" -> "nasa")
-      const sourceId = item.source.toLowerCase().split(' ')[0];
-      return sourceId === currentCategory;
+    const raw = currentCategory === "all" 
+      ? initialFeed 
+      : initialFeed.filter(item => {
+          const sourceId = item.source.toLowerCase().split(' ')[0];
+          return sourceId === currentCategory;
+        });
+
+    return [...raw].sort((a, b) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      // DESC order: Higher timestamp (most recent) comes first
+      return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
     });
   }, [initialFeed, currentCategory]);
 

@@ -3,6 +3,8 @@ import { SubscribeDialog } from "@/components/SubscribeDialog";
 import { Button } from "@/components/ui/button";
 import { LiveClock } from "@/components/LiveClock";
 import { FilteredIntelligence } from "@/components/FilteredIntelligence";
+import { ShimmerFeed } from "@/components/ShimmerUI";
+import { LiveOperatives } from "@/components/LiveOperatives";
 import { Suspense } from "react";
 
 async function getIntelligenceFeed(): Promise<NewsItem[]> {
@@ -37,22 +39,17 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center gap-6">
+            <LiveOperatives />
+            <div className="hidden sm:block border-l border-border/40 h-8" />
             <SubscribeDialog />
-            <div className="hidden sm:block border-l border-border/40 h-8 mr-[-8px]" />
+            <div className="hidden sm:block border-l border-border/40 h-8" />
             <LiveClock />
           </div>
         </div>
       </header>
 
       <main className="container mx-auto flex flex-col flex-1 py-3 px-3 gap-6">
-        <Suspense fallback={
-          <div className="flex flex-col gap-6 py-12 items-center">
-            <div className="h-4 w-48 bg-muted animate-pulse rounded-full" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
-              {[1, 2, 3].map(i => <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />)}
-            </div>
-          </div>
-        }>
+        <Suspense fallback={<ShimmerFeed />}>
           <FilteredIntelligence initialFeed={initialFeed} />
         </Suspense>
       </main>
