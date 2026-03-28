@@ -1,7 +1,8 @@
 import { NewsCard } from "@/components/NewsCard";
 import { NewsItem } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { SubscribeDialog } from "@/components/SubscribeDialog";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 async function getIntelligenceFeed(): Promise<NewsItem[]> {
   try {
@@ -32,14 +33,11 @@ export default async function Home() {
 
           <div className="hidden md:flex flex-col items-center flex-1">
             <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-foreground/90">World Intelligence Feed</h1>
-            <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
-              High-signal global updates aggregated every 2 hours.
-            </p>
+            
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-border/40 uppercase tracking-wider">Archives</Button>
-            <Button size="sm" className="h-8 text-[10px] font-bold uppercase tracking-wider">Subscribe</Button>
+            <SubscribeDialog />
           </div>
         </div>
       </header>

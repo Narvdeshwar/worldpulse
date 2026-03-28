@@ -51,6 +51,11 @@ func initRedis() {
 	}
 }
 
+func sendWelcomeEmail(email string) {
+	log.Printf("📧 [INTEL-MAIL] Sending welcome briefing to: %s", email)
+	log.Printf("📧 [INTEL-MAIL] Content: Welcome to WorldPulse. Your first report arrives in 12 hours.")
+}
+
 func gatherIntelligence() {
 	fp := gofeed.NewParser()
 	feeds := []string{
@@ -170,6 +175,25 @@ func main() {
 			"MARKETS: NASDAQ touches all-time high on AI GPU demand",
 		}
 		c.JSON(http.StatusOK, tickerItems)
+	})
+
+	r.POST("/api/subscribe", func(c *gin.Context) {
+		var body struct {
+			Email string `json:"email"`
+		}
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+			return
+		}
+
+		if rdb != nil {
+			rdb.SAdd(ctx, "wp:subscribers", body.Email)
+		}
+		
+		go sendWelcomeEmail(body.Email)
+		
+		log.Printf("📩 New Subscriber Synchronized: %s", body.Email)
+		c.JSON(http.StatusOK, gin.H{"message": "Subscribed! Initial report coming in 12 hours."})
 	})
 
 	port := os.Getenv("PORT")
