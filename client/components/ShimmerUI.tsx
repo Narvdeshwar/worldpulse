@@ -4,32 +4,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ShimmerCard() {
   return (
-    <div className="flex flex-col h-[300px] border border-border/20 bg-card/40 rounded-xl p-4 gap-4 animate-in fade-in duration-500">
+    <div className="flex flex-col h-[300px] border border-white/5 bg-slate-900/20 backdrop-blur-xl rounded-xl p-4 gap-6 animate-in fade-in duration-500 overflow-hidden">
       <div className="flex justify-between items-center">
-        <div className="flex gap-2 items-center">
-          <Skeleton className="h-3.5 w-3.5 rounded-full bg-primary/20" />
-          <Skeleton className="h-3 w-20 bg-muted/40" />
+        <div className="flex gap-2.5 items-center">
+          <Skeleton className="h-2 w-2 rounded-full bg-primary/40 animate-pulse" />
+          <Skeleton className="h-2.5 w-16 bg-primary/10" />
         </div>
-        <Skeleton className="h-6 w-6 rounded-sm bg-muted/20" />
+        <Skeleton className="h-8 w-8 rounded-md bg-white/5" />
       </div>
       
-      <div className="space-y-3 mt-2">
-        <Skeleton className="h-5 w-full bg-muted/60" />
-        <Skeleton className="h-5 w-[85%] bg-muted/40" />
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-full bg-white/10" />
+        <Skeleton className="h-6 w-[70%] bg-white/10" />
       </div>
 
-      <div className="space-y-2 mt-4 flex-1">
-        <Skeleton className="h-3 w-full bg-muted/20" />
-        <Skeleton className="h-3 w-full bg-muted/20" />
-        <Skeleton className="h-3 w-[60%] bg-muted/20" />
+      <div className="space-y-2 flex-grow pl-4 border-l-2 border-white/5 py-1">
+        <Skeleton className="h-3 w-full bg-white/5" />
+        <Skeleton className="h-3 w-full bg-white/5" />
+        <Skeleton className="h-3 w-[60%] bg-white/5" />
       </div>
 
-      <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/10">
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-3 w-3 rounded-full bg-muted/40" />
-          <Skeleton className="h-3 w-16 bg-muted/40" />
+          <Skeleton className="h-3 w-3 rounded-full bg-white/5" />
+          <Skeleton className="h-2.5 w-12 bg-white/5" />
         </div>
-        <Skeleton className="h-8 w-24 rounded-md bg-primary/10" />
+        <Skeleton className="h-4 w-20 rounded-md bg-primary/10" />
       </div>
     </div>
   );

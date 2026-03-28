@@ -48,61 +48,54 @@ export function NewsCard({ item, className }: NewsCardProps) {
   };
 
   return (
-    <Card className={cn(
-      "flex flex-col h-full transition-all duration-300",
-      "border border-border/40 bg-card rounded-xl backdrop-blur-md",
-      "hover:border-primary/50 hover:bg-card/90 hover:scale-[1.01] hover:shadow-2xl hover:shadow-primary/5",
+    <div className={cn(
+      "group relative flex flex-col h-full p-4 bg-slate-900/40 backdrop-blur-xl rounded-xl border border-white/5 transition-all duration-700",
+      "hover:border-primary/40 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] hover:-translate-y-1.5 overflow-hidden",
       className
     )}>
-      <CardHeader className="space-y-3 p-3 pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="h-3.5 w-3.5 text-primary" />
-            <Badge 
-              variant="outline" 
-              className="text-[9px] font-black tracking-[0.1em] uppercase border-none p-0 text-muted-foreground"
-            >
+      {/* 🧬 Neural Glow Ingress */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(249,115,22,0.08),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        <header className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(249,115,22,1)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/90">
               {item.source}
-            </Badge>
+            </span>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className={cn("h-7 w-7 transition-colors rounded-sm", copied ? "text-green-500" : "text-muted-foreground/50 hover:text-foreground")}
+            className={cn("h-8 w-8 transition-all rounded-md bg-white/5 border border-white/5 hover:bg-primary/20 hover:border-primary/40", copied ? "text-green-500" : "text-muted-foreground/40 hover:text-primary")}
             onClick={copyToClipboard}
           >
-            {copied ? <span className="text-[10px] font-bold">OK</span> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <span className="text-[10px] font-black">OK</span> : <Copy className="h-3.5 w-3.5" />}
           </Button>
-        </div>
-        
-        <CardTitle className="text-xl font-bold leading-tight tracking-tight text-card-foreground">
+        </header>
+
+        <h3 className="text-xl font-black leading-[1.1] tracking-tighter text-foreground mb-3 group-hover:text-primary transition-colors duration-500">
           {item.title}
-        </CardTitle>
-      </CardHeader>
+        </h3>
 
-      <CardContent className="flex-1 px-3 py-2">
-        <p className="text-[13px] leading-relaxed text-muted-foreground/80 font-medium line-clamp-4 italic decoration-primary/20">
-          "{item.summary}"
+        <p className="text-[13px] leading-relaxed text-muted-foreground/80 font-medium mb-6 line-clamp-4 flex-grow italic border-l-2 border-primary/20 pl-4 py-1">
+          {item.summary?.replace(/<[^>]*>/g, '') || "No summary available."}
         </p>
-      </CardContent>
 
-      <CardFooter className="flex flex-col gap-3 p-3 mt-auto border-t border-border/20">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">
-            <Clock className="h-3 w-3" />
+        <footer className="flex items-center justify-between pt-4 mt-auto border-t border-white/5">
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground/50 font-black uppercase tracking-widest">
+            <Clock className="h-3 w-3 text-primary/40" />
             <span>{localTime}</span>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 px-3 text-[10px] font-black uppercase tracking-[0.15em] transition-all bg-primary/5 border-primary/20 hover:bg-primary hover:text-white hover:border-primary"
+          <button 
+            className="group/link flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary/70 hover:text-primary transition-all"
             onClick={() => window.open(item.url, "_blank")}
           >
-            <span>Read Report</span>
-            <ExternalLink className="h-2.5 w-2.5" />
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+            <span>Read Intel</span>
+            <ExternalLink className="h-3 w-3 transition-transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1" />
+          </button>
+        </footer>
+      </div>
+    </div>
   );
 }

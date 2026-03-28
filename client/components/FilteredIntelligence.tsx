@@ -59,7 +59,7 @@ export function FilteredIntelligence({ initialFeed }: FilteredIntelligenceProps)
           </Button>
         </div>
       ) : (
-        <div className="grid w-full gap-3 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+        <div className="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto px-4">
           {filteredFeed.map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
