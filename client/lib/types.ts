@@ -4,4 +4,5 @@ export interface NewsItem {
   summary: string;
   source: string;
   timestamp: string;
+  url: string;
 }
