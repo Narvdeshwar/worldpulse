@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/mmcdole/gofeed"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -19,6 +20,7 @@ type NewsItem struct {
 	Summary   string `json:"summary"`
 	Source    string `json:"source"`
 	Timestamp string `json:"timestamp"`
+	URL       string `json:"url"`
 }
 
 var (
@@ -49,48 +51,75 @@ func initRedis() {
 	}
 }
 
-func simulateIntelligenceGathering() {
-	for {
-		log.Println("🌍 Gathering intelligence from global sources...")
-		
-		mockFeed := []NewsItem{
-			{
-				ID:        "1",
-				Title:     "OpenAI Announces Strawberry-1 Model",
-				Summary:   "The new model focuses on reasoning and has shown significant improvements in complex problem-solving tasks, particularly in coding and math. It marks a shift towards agentic behavior in LLMs.",
-				Source:    "OpenAI / xAI",
-				Timestamp: "2h ago",
-			},
-			{
-				ID:        "2",
-				Title:     "NVIDIA's Blackwell Chips Enter Mass Production",
-				Summary:   "Supply chain reports indicate that NVIDIA has secured massive orders for its next-gen AI chips. Production is scaling faster than expected to meet demand from cloud providers.",
-				Source:    "Bloomberg",
-				Timestamp: "5h ago",
-			},
-			{
-				ID:        "3",
-				Title:     "SpaceX Starship Completes Fifth Test Flight",
-				Summary:   "The flight demonstrated successful stage separation and a controlled landing of the Super Heavy booster back at the launch site, a critical milestone for full reuse.",
-				Source:    "SpaceNews",
-				Timestamp: "12h ago",
-			},
-		}
+func gatherIntelligence() {
+	fp := gofeed.NewParser()
+	feeds := []string{
+		"http://feeds.bbci.co.uk/news/world/rss.xml",
+		"https://www.nasa.gov/news-release/feed/",
+		"https://www.wired.com/feed/rss",
+	}
 
-		data, _ := json.Marshal(mockFeed)
-		
-		if rdb != nil {
-			err := rdb.Set(ctx, feedKey, data, retention).Err()
+	for {
+		log.Println("🌍 Synchronizing with global intelligence feeds...")
+		var allItems []NewsItem
+
+		for _, url := range feeds {
+			feed, err := fp.ParseURL(url)
 			if err != nil {
-				log.Printf("Error saving to Redis: %v", err)
+				log.Printf("⚠️ Failed to parse feed %s: %v", url, err)
+				continue
+			}
+
+			// Capture top 5 items from each feed
+			limit := 5
+			if len(feed.Items) < limit {
+				limit = len(feed.Items)
+			}
+
+			for i := 0; i < limit; i++ {
+				item := feed.Items[i]
+				
+				// Clean up timestamp
+				ts := "Recent"
+				if item.Published != "" {
+					ts = item.Published
+					if t, err := time.Parse(time.RFC1123Z, ts); err == nil {
+						ts = t.Format("Jan 02, 15:04")
+					} else if t, err := time.Parse(time.RFC1123, ts); err == nil {
+						ts = t.Format("Jan 02, 15:04")
+					}
+				}
+
+				allItems = append(allItems, NewsItem{
+					ID:        item.GUID,
+					Title:     item.Title,
+					Summary:   item.Description,
+					Source:    feed.Title,
+					Timestamp: ts,
+					URL:       item.Link,
+				})
 			}
 		}
-		
-		// Always update memory cache as fallback
-		memoryCache = data
-		log.Println("✅ Intelligence feed updated.")
 
-		time.Sleep(6 * time.Hour)
+		if len(allItems) > 0 {
+			data, _ := json.Marshal(allItems)
+			if rdb != nil {
+				rdb.Set(ctx, feedKey, data, retention)
+			}
+			memoryCache = data
+			log.Printf("✅ Pipeline synchronized: %d live items ingested.", len(allItems))
+		} else {
+			log.Println("⚠️ Pipeline warning: No items retrieved from feeds.")
+		}
+
+		intervalStr := os.Getenv("INTELLIGENCE_INTERVAL")
+		interval, err := time.ParseDuration(intervalStr)
+		if err != nil {
+			interval = 2 * time.Hour
+		}
+		
+		log.Printf("💤 Next synchronization in %v", interval)
+		time.Sleep(interval)
 	}
 }
 
@@ -100,7 +129,7 @@ func main() {
 	}
 
 	initRedis()
-	go simulateIntelligenceGathering()
+	go gatherIntelligence()
 
 	r := gin.Default()
 
@@ -129,6 +158,18 @@ func main() {
 		var feed []NewsItem
 		json.Unmarshal(data, &feed)
 		c.JSON(http.StatusOK, feed)
+	})
+
+	r.GET("/api/ticker", func(c *gin.Context) {
+		tickerItems := []string{
+			"CRITICAL: Global semiconductor shortage expected to ease by Q4 2026",
+			"TECH: OpenAI Strawberry model achieves 95% on reasoning benchmark",
+			"SPACE: Starship booster recovery successful in Boca Chica",
+			"GEO: New intelligence confirms shift in Arctic trade routes",
+			"ENV: Global fusion breakthrough reported in European facility",
+			"MARKETS: NASDAQ touches all-time high on AI GPU demand",
+		}
+		c.JSON(http.StatusOK, tickerItems)
 	})
 
 	port := os.Getenv("PORT")
