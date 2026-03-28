@@ -30,6 +30,27 @@ const mockFeed: NewsItem[] = [
     summary: "New export controls and subsidies are reshaping the semiconductor landscape, with significant implications for AI development speeds in different regions.",
     source: "The Verge",
     timestamp: "8h ago"
+  },
+  {
+    id: "4",
+    title: "SpaceX Starship Completes Fifth Test Flight",
+    summary: "The flight demonstrated successful stage separation and a controlled landing of the Super Heavy booster back at the launch site, a critical milestone for full reuse.",
+    source: "SpaceNews",
+    timestamp: "12h ago"
+  },
+  {
+    id: "5",
+    title: "New Battery Chemistry Promises Faster Charging",
+    summary: "Research into silicon-anode batteries has led to a breakthrough that could reduce electric vehicle charging times to under 10 minutes without degrading cycle life.",
+    source: "MIT Technology Review",
+    timestamp: "18h ago"
+  },
+  {
+    id: "6",
+    title: "AI Regulation Bills Gain Traction Globally",
+    summary: "Legislators in Europe and the US are debating new framework rules to categorize AI risk levels, with major tech firms proposing self-regulation protocols.",
+    source: "Reuters",
+    timestamp: "1d ago"
   }
 ];
 
@@ -54,7 +75,7 @@ export default function Home() {
         
         <Separator />
 
-        <div className="grid gap-6 max-w-4xl">
+        <div className="grid w-full gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {mockFeed.map((item) => (
             <NewsCard key={item.id} item={item} />
           ))}
