@@ -26,6 +26,8 @@ var (
 	rdb         *redis.Client
 	feedKey     = "wp:feed:latest"
 	retention   = 48 * time.Hour
+	// In-memory fallback
+	memoryCache []byte
 )
 
 func initRedis() {
@@ -36,10 +38,17 @@ func initRedis() {
 	rdb = redis.NewClient(&redis.Options{
 		Addr: redisURL,
 	})
-	log.Printf("Connecting to Redis at %s", redisURL)
+	
+	// Test connection
+	_, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Printf("⚠️ Redis unavailable at %s: Using in-memory fallback", redisURL)
+		rdb = nil
+	} else {
+		log.Printf("✅ Connected to Redis at %s", redisURL)
+	}
 }
 
-// simulateIntelligenceGathering periodically updates the feed in Redis
 func simulateIntelligenceGathering() {
 	for {
 		log.Println("🌍 Gathering intelligence from global sources...")
@@ -69,12 +78,19 @@ func simulateIntelligenceGathering() {
 		}
 
 		data, _ := json.Marshal(mockFeed)
-		err := rdb.Set(ctx, feedKey, data, retention).Err()
-		if err != nil {
-			log.Printf("Error saving to Redis: %v", err)
+		
+		if rdb != nil {
+			err := rdb.Set(ctx, feedKey, data, retention).Err()
+			if err != nil {
+				log.Printf("Error saving to Redis: %v", err)
+			}
 		}
+		
+		// Always update memory cache as fallback
+		memoryCache = data
+		log.Println("✅ Intelligence feed updated.")
 
-		time.Sleep(6 * time.Hour) // Gather every 6 hours
+		time.Sleep(6 * time.Hour)
 	}
 }
 
@@ -96,15 +112,22 @@ func main() {
 	})
 
 	r.GET("/api/feed", func(c *gin.Context) {
-		val, err := rdb.Get(ctx, feedKey).Result()
-		if err != nil {
-			log.Printf("Redis miss: %v", err)
+		var data []byte
+
+		if rdb != nil {
+			data, _ = rdb.Get(ctx, feedKey).Bytes()
+		} else {
+			data = memoryCache
+		}
+
+		if len(data) == 0 {
+			log.Printf("Pipeline miss: No data available")
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Intelligence pipeline initializing"})
 			return
 		}
 
 		var feed []NewsItem
-		json.Unmarshal([]byte(val), &feed)
+		json.Unmarshal(data, &feed)
 		c.JSON(http.StatusOK, feed)
 	})
 
