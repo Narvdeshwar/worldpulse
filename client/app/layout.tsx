@@ -23,8 +23,30 @@ import Script from "next/script";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "WorldPulse | Real-Time Global Intelligence",
-  description: "Curated, high-signal intelligence feed for global events, tech, and geopolitics.",
+  title: "WorldPulse | Tactical Global Intelligence Hub",
+  description: "Experience mission-critical real-time intelligence on geopolitics, space, tech, and AI. High-signal reports for strategic analysts globally.",
+  keywords: ["global intelligence", "real-time news", "geopolitical analysis", "AI news", "space intelligence", "tactical dashboard"],
+  authors: [{ name: "Narvdeshwar Intelligence" }],
+  openGraph: {
+    title: "WorldPulse | Global Intelligence Hub",
+    description: "Mission-critical real-time intelligence for strategic analysts.",
+    url: "https://worldpulse.dev",
+    siteName: "WorldPulse",
+    images: [{ url: "/logo.png", width: 1200, height: 630 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WorldPulse | Global Intelligence Hub",
+    description: "Mission-critical real-time intelligence on geopolitics, space, and AI.",
+    images: ["/logo.png"],
+  },
+  icons: {
+    icon: "/favicon.ico?v=1.1",
+    shortcut: "/favicon.ico?v=1.1",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
