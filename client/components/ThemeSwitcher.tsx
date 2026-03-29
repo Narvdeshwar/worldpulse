@@ -52,10 +52,10 @@ export function ThemeSwitcher() {
           <Settings className="h-5 w-5 text-primary/80 group-hover:rotate-90 transition-transform duration-700" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-2xl border-primary/20 p-2 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-        <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-[0.3em] text-muted-foreground/60 px-2 py-3 flex items-center gap-2">
-          <Palette className="h-3 w-3" />
-          Neural Theme Engine
+      <DropdownMenuContent align="end" className="w-52 bg-card/95 backdrop-blur-2xl border-primary/20 p-2 rounded-xl shadow-xl">
+        <DropdownMenuLabel className="text-[12px] font-semibold text-muted-foreground/60 px-2 py-3 flex items-center gap-2">
+          <Palette className="h-3.5 w-3.5" />
+          Change Appearance
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-primary/10 mx-1" />
         <div className="grid grid-cols-1 gap-1 pt-1">

@@ -60,7 +60,7 @@ export function NewsCard({ item, className }: NewsCardProps) {
         <header className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="h-2.5 w-2.5 rounded-full bg-primary animate-pulse shadow-[0_0_10px_var(--primary-glow)]" />
-            <span className="text-[12px] font-black uppercase tracking-[0.25em] text-primary/95">
+            <span className="text-[12px] font-medium text-primary/95">
               {item.source}
             </span>
           </div>
@@ -70,15 +70,15 @@ export function NewsCard({ item, className }: NewsCardProps) {
             className={cn("h-9 w-9 transition-all rounded-lg bg-white/5 border border-white/5 hover:bg-primary/20 hover:border-primary/40", copied ? "text-green-400" : "text-muted-foreground/40 hover:text-primary")}
             onClick={copyToClipboard}
           >
-            {copied ? <span className="text-[11px] font-black">OK</span> : <Copy className="h-4 w-4" />}
+            {copied ? <span className="text-[11px] font-medium">OK</span> : <Copy className="h-4 w-4" />}
           </Button>
         </header>
 
-        <h3 className="text-2xl font-black leading-tight tracking-tighter text-foreground mb-4 group-hover:text-primary transition-colors duration-500">
+        <h3 className="text-[16px] font-semibold leading-snug text-foreground mb-4 group-hover:text-primary transition-colors duration-500">
           {item.title}
         </h3>
 
-        <p className="text-[15px] leading-relaxed text-muted-foreground/90 font-medium mb-8 line-clamp-4 flex-grow italic border-l-3 border-primary/20 pl-5 py-2">
+        <p className="text-[14px] leading-relaxed text-muted-foreground/90 font-normal mb-8 line-clamp-4 flex-grow italic border-l-3 border-primary/20 pl-5 py-2">
           {item.summary?.replace(/<[^>]*>/g, '') || "No summary available."}
         </p>
 

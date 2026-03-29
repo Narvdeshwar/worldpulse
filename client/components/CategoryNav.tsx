@@ -15,10 +15,10 @@ export function CategoryNav({ activeSources, onCategoryChange, isPending }: Cate
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category") || "all";
 
-  // 🧬 Strategic Intelligence Categories (Expanded with explicit Research node)
+  // 🧬 News Categories
   const baseCategories = [
-    { id: "all", name: "AI Strategic Hub" },
-    { id: "research", name: "Research" } // Explicit category requested
+    { id: "all", name: "All Topics" },
+    { id: "research", name: "Research" } 
   ];
 
   const sourceCategories = activeSources
@@ -40,10 +40,10 @@ export function CategoryNav({ activeSources, onCategoryChange, isPending }: Cate
             disabled={isPending}
             onClick={() => onCategoryChange(cat.id)}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-[0.2em] transition-all border whitespace-nowrap cursor-pointer",
+              "px-5 py-2 rounded-lg text-[13px] font-medium transition-all border whitespace-nowrap cursor-pointer",
               currentCategory === cat.id
-                ? "bg-primary text-black border-primary shadow-[0_0_20px_rgba(20,255,180,0.4)]"
-                : "bg-background/20 text-muted-foreground border-border/40 hover:border-primary/50 hover:bg-primary/5 shadow-sm"
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "bg-background/20 text-muted-foreground border-border hover:border-primary/50 hover:bg-primary/5 shadow-sm"
             )}
           >
             {cat.name}
@@ -51,9 +51,9 @@ export function CategoryNav({ activeSources, onCategoryChange, isPending }: Cate
           ))}
           
           {isPending && (
-            <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="absolute -right-16 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-[10px] uppercase font-black tracking-widest text-primary animate-pulse">Syncing...</span>
+              <span className="text-[11px] font-medium text-primary animate-pulse">Updating...</span>
             </div>
           )}
         </div>

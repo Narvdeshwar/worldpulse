@@ -15,7 +15,7 @@ async function getIntelligenceFeed(): Promise<NewsItem[]> {
       cache: "no-store",
     });
 
-    if (!res.ok) throw new Error("Intelligence server unavailable");
+    if (!res.ok) throw new Error("News hub unavailable");
     return res.json();
   } catch (error) {
     console.error("Feed fetch failed:", error);
@@ -40,13 +40,13 @@ export default async function Home() {
               />
             </div>
             <div className="flex flex-col">
-              <h2 className="font-black text-2xl tracking-tighter text-primary leading-none">WorldPulse</h2>
-              <div className="text-[12px] uppercase tracking-[0.25em] font-black text-muted-foreground/60 mt-1.5">AI Strategic Node</div>
+              <h2 className="font-semibold text-[16px] tracking-tight text-primary leading-none">WorldPulse</h2>
+              <div className="text-[14px] uppercase tracking-wider font-normal text-muted-foreground/60 mt-1">AI News Hub</div>
             </div>
           </div>
 
           <div className="hidden md:flex flex-col items-center flex-1">
-            <h1 className="text-base font-black uppercase tracking-[0.3em] text-foreground/90">AI Intelligence Grid</h1>
+            <h1 className="text-[16px] font-semibold uppercase tracking-widest text-foreground/90">Latest AI News</h1>
           </div>
 
           <div className="flex items-center gap-4">
