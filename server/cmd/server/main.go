@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"os"
+	"time"
 
 	"worldpulse-server/internal/api"
 	"worldpulse-server/internal/config"
@@ -10,11 +10,17 @@ import (
 	"worldpulse-server/internal/worker"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	// Initialize Structured Logging Node
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
+	zerolog.TimeFieldFormat = time.RFC3339
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using defaults")
+		log.Warn().Msg("No .env file found, using defaults")
 	}
 
 	cfg := config.Load()
@@ -36,9 +42,9 @@ func main() {
 	if port == "" {
 		port = "8081"
 	}
-	log.Printf("WorldPulse Intelligence Server live on port %s", port)
+	log.Info().Str("port", port).Msg("WorldPulse Intelligence Server live")
 	
 	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("Server failed: %v", err)
+		log.Fatal().Err(err).Msg("Server failure in grid node")
 	}
 }

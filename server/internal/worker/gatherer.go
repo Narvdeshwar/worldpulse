@@ -2,8 +2,6 @@ package worker
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"sort"
 	"strings"
 	"sync"
@@ -14,6 +12,7 @@ import (
 	"worldpulse-server/internal/utils"
 
 	"github.com/mmcdole/gofeed"
+	"github.com/rs/zerolog/log"
 )
 
 var dateLayouts = []string{
@@ -35,54 +34,53 @@ var dateLayouts = []string{
 }
 
 var aiKeywords = []string{
-	"ai ", "artificial intelligence", "llm ", "machine learning", 
+	"ai ", "artificial intelligence", "llm ", "machine learning",
 	"openai", "deepmind", "gpt", "neural network", "generative",
 	"claude", "gemini", "transformer", "robotics", "automation",
 	"predictive analytics", "superintelligence", "agi ", "nlp ",
 }
-
 var feeds = []string{
 	"https://techcrunch.com/category/artificial-intelligence/feed/",
 	"https://venturebeat.com/category/ai/feed/",
-	"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
+	"https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
 	"https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
-	"https://www.wired.com/tag/ai/feed/",
+	"https://www.wired.com/feed/tag/ai/latest/rss",
 	"https://scitechdaily.com/tag/artificial-intelligence/feed/",
 	"https://www.artificialintelligence-news.com/feed/",
 	"https://openai.com/news/rss.xml",
 	"https://deepmind.google/blog/rss.xml",
 	"https://unite.ai/feed/",
-	"https://ai.meta.com/blog/rss/",
+	"https://www.technologyreview.com/feed/artificial-intelligence/",
 	"https://bair.berkeley.edu/blog/feed.xml",
 	"https://rss.arxiv.org/rss/cs.AI",
 }
 
 type Gatherer struct {
-	store      *db.Store
-	parser     *gofeed.Parser
-	feedKey    string
-	tickerKey  string
-	retention  time.Duration
-	interval   time.Duration
+	store     *db.Store
+	parser    *gofeed.Parser
+	feedKey   string
+	tickerKey string
+	retention time.Duration
+	interval  time.Duration
 }
 
 func NewGatherer(store *db.Store, interval, retention time.Duration) *Gatherer {
 	fp := gofeed.NewParser()
-	fp.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 WorldPulse/1.1"
+	fp.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
 	return &Gatherer{
-		store:      store,
-		parser:     fp,
-		feedKey:    "wp:feed:latest",
-		tickerKey:  "wp:ticker:latest",
-		retention:  retention,
-		interval:   interval,
+		store:     store,
+		parser:    fp,
+		feedKey:   "wp:feed:latest",
+		tickerKey: "wp:ticker:latest",
+		retention: retention,
+		interval:  interval,
 	}
 }
 
 func (g *Gatherer) Start() {
 	for {
-		log.Println("🌍 SYNCHRONIZING: Refreshing AI Research Strategic Grid...")
+		log.Info().Msg("🌍 SYNCHRONIZING: Refreshing AI Research Strategic Grid...")
 		g.Sync()
 		time.Sleep(g.interval)
 	}
@@ -117,7 +115,7 @@ func (g *Gatherer) Sync() {
 	for _, it := range allItemsWithTime {
 		allItems = append(allItems, it.Item)
 		if len(tickerStrings) < 15 {
-			tickerStrings = append(tickerStrings, fmt.Sprintf("[%s] %s", it.Item.Source, it.Item.Title))
+			tickerStrings = append(tickerStrings, "["+it.Item.Source+"] "+it.Item.Title)
 		}
 	}
 
@@ -126,14 +124,17 @@ func (g *Gatherer) Sync() {
 		tData, _ := json.Marshal(tickerStrings)
 		g.store.SetFeedData(g.feedKey, data, g.retention)
 		g.store.SetTickerData(g.tickerKey, tData, g.retention)
-		log.Printf("✅ Pipeline synchronized: %d feed items, %d ticker items", len(allItems), len(tickerStrings))
+		log.Info().
+			Int("feed_items", len(allItems)).
+			Int("ticker_items", len(tickerStrings)).
+			Msg("✅ Pipeline synchronized")
 	}
 }
 
 func (g *Gatherer) fetchFeed(url string) []models.NewsWithTime {
 	feed, err := g.parser.ParseURL(url)
 	if err != nil {
-		log.Printf("⚠️ NODE-FAIL: %s | Error: %v", url, err)
+		log.Warn().Str("url", url).Err(err).Msg("⚠️ NODE-FAIL")
 		return nil
 	}
 
@@ -168,19 +169,32 @@ func (g *Gatherer) fetchFeed(url string) []models.NewsWithTime {
 func (g *Gatherer) getSourceName(url, defaultTitle string) string {
 	lowerURL := strings.ToLower(url)
 	switch {
-	case strings.Contains(lowerURL, "techcrunch"): return "TechCrunch AI"
-	case strings.Contains(lowerURL, "venturebeat"): return "VentureBeat AI"
-	case strings.Contains(lowerURL, "theverge"): return "The Verge AI"
-	case strings.Contains(lowerURL, "zdnet"): return "ZDNet AI"
-	case strings.Contains(lowerURL, "wired"): return "Wired Tech"
-	case strings.Contains(lowerURL, "openai"): return "OpenAI Blog"
-	case strings.Contains(lowerURL, "deepmind"): return "Google DeepMind"
-	case strings.Contains(lowerURL, "meta.com/blog"): return "Meta AI Research"
-	case strings.Contains(lowerURL, "bair.berkeley.edu"): return "Berkeley AI Research"
-	case strings.Contains(lowerURL, "arxiv"): return "arXiv AI Research"
-	case strings.Contains(lowerURL, "unite.ai"): return "Unite AI"
-	case strings.Contains(lowerURL, "scitechdaily"): return "SciTech Daily AI"
-	default: return defaultTitle
+	case strings.Contains(lowerURL, "techcrunch"):
+		return "TechCrunch AI"
+	case strings.Contains(lowerURL, "venturebeat"):
+		return "VentureBeat AI"
+	case strings.Contains(lowerURL, "theverge"):
+		return "The Verge AI"
+	case strings.Contains(lowerURL, "zdnet"):
+		return "ZDNet AI"
+	case strings.Contains(lowerURL, "wired"):
+		return "Wired AI"
+	case strings.Contains(lowerURL, "openai"):
+		return "OpenAI Blog"
+	case strings.Contains(lowerURL, "deepmind"):
+		return "Google DeepMind"
+	case strings.Contains(lowerURL, "technologyreview"):
+		return "MIT Tech Review"
+	case strings.Contains(lowerURL, "bair.berkeley.edu"):
+		return "Berkeley AI Research"
+	case strings.Contains(lowerURL, "arxiv"):
+		return "arXiv AI Research"
+	case strings.Contains(lowerURL, "unite.ai"):
+		return "Unite AI"
+	case strings.Contains(lowerURL, "scitechdaily"):
+		return "SciTech Daily AI"
+	default:
+		return defaultTitle
 	}
 }
 
@@ -197,8 +211,8 @@ func (g *Gatherer) hasAIKeywords(title, description string) bool {
 
 func (g *Gatherer) isBypassedSource(url string) bool {
 	lowerURL := strings.ToLower(url)
-	return strings.Contains(lowerURL, "openai") || 
-		strings.Contains(lowerURL, "deepmind") || 
+	return strings.Contains(lowerURL, "openai") ||
+		strings.Contains(lowerURL, "deepmind") ||
 		strings.Contains(lowerURL, "artificialintelligence-news")
 }
 
