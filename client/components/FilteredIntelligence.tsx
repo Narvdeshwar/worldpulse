@@ -89,8 +89,8 @@ export function FilteredIntelligence({ initialFeed }: FilteredIntelligenceProps)
   const hasMore = visibleCount < filteredFeed.length;
 
   return (
-    <div className="flex flex-col relative">
-      <div className="sticky top-[4.5rem] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 py-3 border-b border-border/20 mb-3 -mx-3 transition-colors duration-300">
+    <div className="flex flex-col relative w-full">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 py-2 border-b border-border/10 mb-2 w-full transition-all duration-300">
         <CategoryNav 
           activeSources={activeSources} 
           onCategoryChange={onCategoryChange} 

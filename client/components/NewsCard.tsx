@@ -49,7 +49,7 @@ export function NewsCard({ item, className }: NewsCardProps) {
 
   return (
     <div className={cn(
-      "group relative flex flex-col h-full p-6 bg-card backdrop-blur-2xl rounded-2xl border border-border/60 transition-all duration-700",
+      "group relative flex flex-col h-full p-4 sm:p-6 bg-card backdrop-blur-2xl rounded-2xl border border-border/60 transition-all duration-700",
       "hover:border-primary/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_40px_rgba(20,255,180,0.1)] hover:-translate-y-2 overflow-hidden",
       className
     )}>
