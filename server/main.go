@@ -34,7 +34,7 @@ var (
 	rdb       *redis.Client
 	feedKey   = "wp:feed:latest"
 	tickerKey = "wp:ticker:latest"
-	retention = 48 * time.Hour
+	retention = 24 * time.Hour
 
 	// 🔒 THREAD-SAFE CACHE LAYER (Staff Engineer Hardening)
 	cacheLock   sync.RWMutex
@@ -88,25 +88,37 @@ func gatherIntelligence() {
 	fp.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 WorldPulse/1.1"
 
 	feeds := []string{
-		"http://feeds.bbci.co.uk/news/world/rss.xml",
-		"https://www.nasa.gov/news-release/feed/",
-		"https://www.wired.com/feed/rss",
 		"https://techcrunch.com/category/artificial-intelligence/feed/",
 		"https://venturebeat.com/category/ai/feed/",
 		"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
 		"https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
-		"https://www.aljazeera.com/xml/rss/all.xml",
-		"https://www.theguardian.com/world/rss",
+		"https://www.wired.com/tag/ai/feed/",
+		"https://scitechdaily.com/tag/artificial-intelligence/feed/",
+		"https://www.artificialintelligence-news.com/feed/",
+		"https://openai.com/news/rss.xml",
+		"https://deepmind.google/blog/rss.xml",
+		"https://unite.ai/feed/",
+		"https://ai.meta.com/blog/rss/",
+		"https://bair.berkeley.edu/blog/feed.xml",
+		"https://rss.arxiv.org/rss/cs.AI",
 	}
 
 	for {
-		log.Println("🌍 SYNCHRONIZING: Refreshing Global Tactical Grid...")
+		log.Println("🌍 SYNCHRONIZING: Refreshing AI Research Strategic Grid...")
 		
 		type NewsWithTime struct {
 			Item NewsItem
 			Date time.Time
 		}
 		var itemsWithTime []NewsWithTime
+
+		// 🛡️ High-Signal AI Keywords for Filtering
+		aiKeywords := []string{
+			"ai ", "artificial intelligence", "llm ", "machine learning", 
+			"openai", "deepmind", "gpt", "neural network", "generative",
+			"claude", "gemini", "transformer", "robotics", "automation",
+			"predictive analytics", "superintelligence", "agi ", "nlp ",
+		}
 
 		for _, url := range feeds {
 			log.Printf("📡 NODE-CHECK: Attempting sync with %s...", url)
@@ -126,21 +138,48 @@ func gatherIntelligence() {
 				sourceName = "The Verge AI"
 			} else if strings.Contains(lowerURL, "zdnet") {
 				sourceName = "ZDNet AI"
-			} else if strings.Contains(lowerURL, "aljazeera") {
-				sourceName = "Al Jazeera"
-			} else if strings.Contains(lowerURL, "theguardian") {
-				sourceName = "The Guardian"
+			} else if strings.Contains(lowerURL, "wired") {
+				sourceName = "Wired Tech"
+			} else if strings.Contains(lowerURL, "openai") {
+				sourceName = "OpenAI Blog"
+			} else if strings.Contains(lowerURL, "deepmind") {
+				sourceName = "Google DeepMind"
+			} else if strings.Contains(lowerURL, "meta.com/blog") {
+				sourceName = "Meta AI Research"
+			} else if strings.Contains(lowerURL, "bair.berkeley.edu") {
+				sourceName = "Berkeley AI Research"
+			} else if strings.Contains(lowerURL, "arxiv") {
+				sourceName = "arXiv AI Research"
+			} else if strings.Contains(lowerURL, "unite.ai") {
+				sourceName = "Unite AI"
+			} else if strings.Contains(lowerURL, "scitechdaily") {
+				sourceName = "SciTech Daily AI"
 			}
 			
-			log.Printf("✅ NODE-READY: Ingested %d items from %s", len(feed.Items), sourceName)
+			log.Printf("✅ NODE-READY: Ingested %d potential items from %s", len(feed.Items), sourceName)
 
-			limit := 10
-			if len(feed.Items) < limit {
-				limit = len(feed.Items)
-			}
+			for _, item := range feed.Items {
+				// 🧠 AI SIGNAL FILTERING (Keyword Check)
+				titleLower := strings.ToLower(item.Title)
+				descriptionLower := strings.ToLower(item.Description)
+				
+				hasAISignal := false
+				for _, kw := range aiKeywords {
+					if strings.Contains(titleLower, kw) || strings.Contains(descriptionLower, kw) {
+						hasAISignal = true
+						break
+					}
+				}
 
-			for i := 0; i < limit; i++ {
-				item := feed.Items[i]
+				// Special Bypass for sources that are already 100% AI
+				if strings.Contains(lowerURL, "openai") || strings.Contains(lowerURL, "deepmind") || strings.Contains(lowerURL, "artificialintelligence-news") {
+					hasAISignal = true
+				}
+
+				if !hasAISignal {
+					continue
+				}
+
 				publishedAt := time.Now()
 				if item.Published != "" {
 					success := false
@@ -154,6 +193,11 @@ func gatherIntelligence() {
 					if !success {
 						log.Printf("⚠️ Date Parse Failed for Node %s: %s", sourceName, item.Published)
 					}
+				}
+
+				// ⏱️ TEMPORAL SIGNAL FILTER: Discard if older than 24h
+				if time.Since(publishedAt) > 24*time.Hour {
+					continue
 				}
 
 				itemsWithTime = append(itemsWithTime, NewsWithTime{
