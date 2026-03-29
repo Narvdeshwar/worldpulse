@@ -49,8 +49,8 @@ export function NewsCard({ item, className }: NewsCardProps) {
 
   return (
     <div className={cn(
-      "group relative flex flex-col h-full p-6 bg-card backdrop-blur-2xl rounded-2xl border border-white/5 transition-all duration-700",
-      "hover:border-primary/40 hover:shadow-[0_0_40px_rgba(20,255,180,0.1)] hover:-translate-y-2 overflow-hidden",
+      "group relative flex flex-col h-full p-6 bg-card backdrop-blur-2xl rounded-2xl border border-border/60 transition-all duration-700",
+      "hover:border-primary/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_40px_rgba(20,255,180,0.1)] hover:-translate-y-2 overflow-hidden",
       className
     )}>
       {/* 🧬 Neural Glow Ingress */}
@@ -67,7 +67,7 @@ export function NewsCard({ item, className }: NewsCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className={cn("h-9 w-9 transition-all rounded-lg bg-white/5 border border-white/5 hover:bg-primary/20 hover:border-primary/40", copied ? "text-green-400" : "text-muted-foreground/40 hover:text-primary")}
+            className={cn("h-9 w-9 transition-all rounded-lg bg-secondary/50 border border-border hover:bg-primary/20 hover:border-primary/40", copied ? "text-green-500 dark:text-green-400" : "text-muted-foreground hover:text-primary")}
             onClick={copyToClipboard}
           >
             {copied ? <span className="text-[11px] font-medium">OK</span> : <Copy className="h-4 w-4" />}
@@ -82,7 +82,7 @@ export function NewsCard({ item, className }: NewsCardProps) {
           {item.summary?.replace(/<[^>]*>/g, '') || "No summary available."}
         </p>
 
-        <footer className="flex items-center justify-between pt-5 mt-auto border-t border-white/5">
+        <footer className="flex items-center justify-between pt-5 mt-auto border-t border-border/40">
           <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground/60 font-black uppercase tracking-widest">
             <Clock className="h-3.5 w-3.5 text-primary/50" />
             <span>{localTime}</span>

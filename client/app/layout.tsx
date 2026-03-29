@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "dark", inter.variable, geistMono.variable, oxanium.variable)}
+      className={cn("h-full", "antialiased", inter.variable, geistMono.variable, oxanium.variable)}
     >
       <body className={cn("min-h-full flex flex-col bg-background text-foreground pb-10 font-sans", inter.className)}>
         {/* Global Intelligence Pixel (gtag) */}
