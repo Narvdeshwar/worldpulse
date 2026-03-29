@@ -2,11 +2,11 @@ package db
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog/log"
 )
 
 type Store struct {
@@ -25,10 +25,10 @@ func NewStore(addr string) *Store {
 
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
-		log.Printf("⚠️ Redis unavailable at %s: Using in-memory fallback", addr)
+		log.Warn().Str("addr", addr).Msg("Redis unavailable: using in-memory fallback")
 		rdb = nil
 	} else {
-		log.Printf("✅ Connected to Redis at %s", addr)
+		log.Info().Str("addr", addr).Msg("Connected to Redis")
 	}
 
 	return &Store{
