@@ -7,6 +7,7 @@ import (
 	"worldpulse-server/internal/api"
 	"worldpulse-server/internal/config"
 	"worldpulse-server/internal/db"
+	"worldpulse-server/internal/email"
 	"worldpulse-server/internal/worker"
 
 	"github.com/joho/godotenv"
@@ -25,6 +26,7 @@ func main() {
 
 	cfg := config.Load()
 	store := db.NewStore(cfg.RedisURL)
+	mailService := email.NewService()
 
 	// Background Gatherer
 	gatherer := worker.NewGatherer(store, cfg.IntelligenceInterval, cfg.Retention)
@@ -35,7 +37,7 @@ func main() {
 	go briefingWorker.Start()
 
 	// API Server
-	server := api.NewServer(store)
+	server := api.NewServer(store, mailService)
 	r := server.SetupRouter()
 
 	port := os.Getenv("PORT")

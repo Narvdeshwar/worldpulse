@@ -10,6 +10,10 @@ type Config struct {
 	Port                string
 	IntelligenceInterval time.Duration
 	Retention           time.Duration
+	SMTPHost            string
+	SMTPPort            string
+	SMTPFrom            string
+	SMTPPass            string
 }
 
 func Load() *Config {
@@ -34,5 +38,9 @@ func Load() *Config {
 		Port:                port,
 		IntelligenceInterval: interval,
 		Retention:           24 * time.Hour,
+		SMTPHost:            os.Getenv("SMTP_HOST"),
+		SMTPPort:            os.Getenv("SMTP_PORT"),
+		SMTPFrom:            os.Getenv("SMTP_FROM"),
+		SMTPPass:            os.Getenv("SMTP_PASS"),
 	}
 }

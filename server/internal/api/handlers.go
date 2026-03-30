@@ -10,10 +10,11 @@ import (
 
 type Server struct {
 	store *db.Store
+	mail  *email.Service
 }
 
-func NewServer(store *db.Store) *Server {
-	return &Server{store: store}
+func NewServer(store *db.Store, mail *email.Service) *Server {
+	return &Server{store: store, mail: mail}
 }
 
 func (s *Server) SetupRouter() *gin.Engine {
@@ -73,8 +74,18 @@ func (s *Server) handleSubscribe(c *gin.Context) {
 	}
 	
 	s.store.AddSubscriber(body.Email)
-	// Placeholder for email sending
-	// sendWelcomeEmail(body.Email)
+	
+	// Send welcome email
+	go func() {
+		subject := "Signal established: Welcome to WorldPulse Intelligence Grid"
+		body := "<html><body style='background-color: #0c0c0c; color: #e0e0e0; font-family: monospace; padding: 20px;'>" +
+			"<h1 style='color: #00ff88;'>Signal Established.</h1>" +
+			"<p>You are now connected to the WorldPulse strategic intelligence grid.</p>" +
+			"<p>Your first tactical briefing will arrive at the next 06:00/18:00 IST window.</p>" +
+			"<hr style='border: 1px solid #333;'>" +
+			"<p style='font-size: 10px; color: #555;'>End of Transmission.</p></body></html>"
+		s.mail.Send(body.Email, subject, body)
+	}()
 	
 	c.JSON(http.StatusOK, gin.H{"message": "Subscribed! Next report at 06:00/18:00 IST."})
 }
