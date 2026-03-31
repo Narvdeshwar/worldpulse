@@ -31,9 +31,9 @@ export function CategoryNav({ activeSources, onCategoryChange, isPending }: Cate
   const categories = [...baseCategories, ...sourceCategories];
 
   return (
-    <div className="flex flex-col gap-3 w-full">
-      <div className="flex items-center justify-center gap-3 overflow-x-auto pb-4 scrollbar-hide py-3 cursor-default w-full">
-        <div className="flex items-center justify-center gap-3 min-w-max mx-auto px-4 relative">
+    <div className="flex flex-col w-full">
+      <div className="flex items-center overflow-x-auto pb-4 scrollbar-hide py-3 cursor-default w-full mask-fade-right">
+        <div className="flex items-center gap-3 min-w-max mx-auto px-6">
           {categories.map((cat) => (
             <button
             key={cat.id}
@@ -46,16 +46,16 @@ export function CategoryNav({ activeSources, onCategoryChange, isPending }: Cate
                 : "bg-background/20 text-muted-foreground border-border hover:border-primary/50 hover:bg-primary/5 shadow-sm"
             )}
           >
-            {cat.name}
+            {isPending && currentCategory === cat.id ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Processing...</span>
+              </div>
+            ) : (
+              cat.name
+            )}
           </button>
           ))}
-          
-          {isPending && (
-            <div className="absolute -right-16 top-1/2 -translate-y-1/2 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-[11px] font-medium text-primary animate-pulse">Updating...</span>
-            </div>
-          )}
         </div>
       </div>
     </div>

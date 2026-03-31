@@ -29,9 +29,9 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/30">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
-        <div className="container mx-auto flex flex-wrap h-auto min-h-[4rem] items-center justify-between px-4 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border-2 border-primary/20 shadow-[0_0_20px_var(--primary-glow)]">
+        <div className="container mx-auto flex h-auto min-h-[4rem] items-center justify-between px-3 sm:px-6 gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="relative h-10 w-10 sm:h-12 sm:w-12 overflow-hidden rounded-xl border-2 border-primary/20 shadow-[0_0_20px_var(--primary-glow)]">
               <Image 
                 src="/logo.png" 
                 alt="WorldPulse Logo" 
@@ -40,18 +40,20 @@ export default async function Home() {
               />
             </div>
             <div className="flex flex-col">
-              <h2 className="font-semibold text-[16px] tracking-tight text-primary leading-none">WorldPulse</h2>
-              <div className="text-[14px] uppercase tracking-wider font-normal text-muted-foreground/60 mt-1">AI News Hub</div>
+              <h2 className="font-semibold text-[15px] sm:text-[16px] tracking-tight text-primary leading-none">WorldPulse</h2>
+              <div className="text-[11px] sm:text-[12px] uppercase tracking-wider font-normal text-muted-foreground/60 mt-0.5 sm:mt-1">AI News Hub</div>
             </div>
           </div>
 
-          <div className="hidden md:flex flex-col items-center flex-1">
-            <h1 className="text-[16px] font-semibold uppercase tracking-widest text-foreground/90">Latest AI News</h1>
+          <div className="hidden lg:flex flex-col items-center flex-1 mx-4">
+            <h1 className="text-[14px] font-semibold uppercase tracking-[0.2em] text-foreground/80">Mission Critical Intelligence</h1>
           </div>
 
-          <div className="flex items-center gap-4">
-            <SubscribeDialog />
-            <div className="hidden sm:block border-l border-border/40 h-8" />
+          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+            <div className="hidden xs:block">
+              <SubscribeDialog />
+            </div>
+            <div className="hidden sm:block border-l border-border/40 h-6 mx-1" />
             <ThemeSwitcher />
             <LiveClock />
           </div>
